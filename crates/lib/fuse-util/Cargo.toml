@@ -1,0 +1,10 @@
+[package]
+name = "fuse-util"
+version = "0.1.0"
+authors = ["Lance Wallis <bleudeveloper@gmail.com>"]
+edition = "2021"
+
+[lib]
+path = "fuse-util.rs"
+
+[dependencies]

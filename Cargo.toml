@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "crates/lib/**",
+    "crates/bin/**"
+]
+exclude = [
+    "crates/lib/fuse-gui/assets"
+]
