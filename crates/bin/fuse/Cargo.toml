@@ -12,6 +12,7 @@ path = "fuse.rs"
 fuse-util = { path = "../../lib/fuse-util" }
 fuse-gui = { path = "../../lib/fuse-gui" }
 
+self_update = { version = "0.32.0" }
 libloading = "0.7.2"
 notify = "4.0.17"
 

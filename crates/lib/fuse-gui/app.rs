@@ -1,3 +1,7 @@
+use crate::filedialog;
+
+use std::{path::PathBuf};
+
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct FApp {
@@ -5,6 +9,14 @@ pub struct FApp {
 
     #[serde(skip)]
     value: f32,
+
+    #[serde(skip)]
+    path_dialog: filedialog::ImNativeFileDialog<Option<PathBuf>>,
+
+    input_path: PathBuf,
+    output_path: PathBuf
+
+    
 }
 
 impl Default for FApp {
@@ -13,6 +25,11 @@ impl Default for FApp {
             // Example stuff:
             Title: "Hello World!".to_owned(),
             value: 2.7,
+
+            path_dialog: filedialog::ImNativeFileDialog::default(),
+
+            input_path: PathBuf::default(),
+            output_path: PathBuf::default(),
         }
     }
 }
@@ -41,13 +58,27 @@ impl eframe::App for FApp {
 
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let Self { Title, value } = self;
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        let Self { 
+            Title, 
+            value ,
+            path_dialog,
+            input_path,
+            output_path
+        } = self;
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
         // Tip: a good default choice is to just keep the `CentralPanel`.
         // For inspiration and more examples, go to https://emilk.github.io/egui
+
+        if let Some(result) = self.path_dialog.check() {
+            match result {
+                Ok(Some(path)) => self.input_path = path,
+                Ok(None) => {}
+                Err(error) => {}
+            }
+        }
 
         #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -55,7 +86,7 @@ impl eframe::App for FApp {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Quit").clicked() {
-                        _frame.close();
+                        frame.close();
                     }
                 });
             });
@@ -92,10 +123,28 @@ impl eframe::App for FApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
-            ui.heading("eframe template");
-            ui.hyperlink("https://github.com/emilk/eframe_template");
+            ui.heading("Input Directory:");
+            
+            // File Dialog
+            ui.label("Path");
+            let text_original = self.input_path.to_string_lossy().to_string();
+            let mut text_edit = text_original.clone();
+            ui.text_edit_singleline(&mut text_edit);
+            if text_edit != text_original {
+                self.input_path = PathBuf::from(text_edit);
+            }
+            if ui.button("Browse").clicked() {
+                let location = self.input_path.clone();
+                //let repaint_signal = frame.;
+                self.path_dialog
+                   .open_single_dir(Some(location))
+                   .expect("Unable to open file_path_dialog");
+            }
+
+
+            ui.hyperlink("https://github.com/BarronKane/Fuse");
             ui.add(egui::github_link_file!(
-                "https://github.com/emilk/eframe_template/blob/master/",
+                "https://github.com/BarronKane/Fuse/blob/master/",
                 "Source code."
             ));
             egui::warn_if_debug_build(ui);
