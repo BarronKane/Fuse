@@ -12,11 +12,13 @@ pub struct FApp {
 
     #[serde(skip)]
     path_dialog: filedialog::ImNativeFileDialog<Option<PathBuf>>,
+    #[serde(skip)]
+    path_dialog_out: filedialog::ImNativeFileDialog<Option<PathBuf>>,
 
     input_path: PathBuf,
-    output_path: PathBuf
+    output_path: PathBuf,
 
-    
+    scalar: f32,
 }
 
 impl Default for FApp {
@@ -27,9 +29,12 @@ impl Default for FApp {
             value: 2.7,
 
             path_dialog: filedialog::ImNativeFileDialog::default(),
+            path_dialog_out: filedialog::ImNativeFileDialog::default(),
 
             input_path: PathBuf::default(),
             output_path: PathBuf::default(),
+
+            scalar: 42.0,
         }
     }
 }
@@ -63,8 +68,10 @@ impl eframe::App for FApp {
             Title, 
             value ,
             path_dialog,
+            path_dialog_out,
             input_path,
-            output_path
+            output_path,
+            scalar,
         } = self;
 
         // Examples of how to create different panels and windows.
@@ -75,6 +82,14 @@ impl eframe::App for FApp {
         if let Some(result) = self.path_dialog.check() {
             match result {
                 Ok(Some(path)) => self.input_path = path,
+                Ok(None) => {}
+                Err(error) => {}
+            }
+        }
+
+        if let Some(result) = self.path_dialog_out.check() {
+            match result {
+                Ok(Some(path)) => self.output_path = path,
                 Ok(None) => {}
                 Err(error) => {}
             }
@@ -124,14 +139,12 @@ impl eframe::App for FApp {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
             ui.heading("Input Directory:");
-            
             // File Dialog
-            ui.label("Path");
-            let text_original = self.input_path.to_string_lossy().to_string();
-            let mut text_edit = text_original.clone();
-            ui.text_edit_singleline(&mut text_edit);
-            if text_edit != text_original {
-                self.input_path = PathBuf::from(text_edit);
+            let text_original_in = self.input_path.to_string_lossy().to_string();
+            let mut text_edit_in = text_original_in.clone();
+            ui.text_edit_singleline(&mut text_edit_in);
+            if text_edit_in != text_original_in {
+                self.input_path = PathBuf::from(text_edit_in);
             }
             if ui.button("Browse").clicked() {
                 let location = self.input_path.clone();
@@ -141,13 +154,40 @@ impl eframe::App for FApp {
                    .expect("Unable to open file_path_dialog");
             }
 
+            ui.heading("OutputDirectory:");
+            //File Dialog
+            let text_original_out = self.output_path.to_string_lossy().to_string();
+            let mut text_edit_out = text_original_out.clone();
+            ui.text_edit_singleline(&mut text_edit_out);
+            if text_edit_out != text_original_out {
+                self.output_path = PathBuf::from(text_edit_out);
+            }
+            if ui.button("Browse").clicked() {
+                let location = self.output_path.clone();
+                //let repaint_signal = frame.;
+                self.path_dialog_out
+                   .open_single_dir(Some(location))
+                   .expect("Unable to open file_path_dialog");
+            }
+            
+        });
 
+        egui::TopBottomPanel::bottom("footer_panel").show(ctx, |ui| {
             ui.hyperlink("https://github.com/BarronKane/Fuse");
             ui.add(egui::github_link_file!(
                 "https://github.com/BarronKane/Fuse/blob/master/",
                 "Source code."
             ));
             egui::warn_if_debug_build(ui);
+        });
+
+        egui::TopBottomPanel::bottom("status_panel").show(ctx, |ui| {
+            let progress = *scalar / 360.0;
+            let progress_bar = egui::ProgressBar::new(progress)
+                .show_percentage()
+                .animate(true);
+            ui.add(progress_bar);
+
         });
 
         if false {
