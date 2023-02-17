@@ -28,7 +28,9 @@ fn main() {
 
 fn scoped_main() {
     let mut ui = fgui::FGui::new("Fuse".to_string());
-    ui.run();
+    //while !ui.b_request_exit {
+        ui.run();
+    //}
 }
 
 fn check_update() -> Result<(), Box<dyn ::std::error::Error>> {

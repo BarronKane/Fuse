@@ -1,11 +1,29 @@
+use crate::ffmpeg::DownloadInfo;
+use crate::ffmpeg::FfmpegInfo;
 use crate::filedialog;
+use crate::ffmpeg;
 
+use std::thread;
 use std::{path::PathBuf};
+use flume::{Sender, Receiver};
+
+pub struct ChannelsForGuiThread {
+    //download_info_rx: Receiver<ffmpeg::DownloadInfo>
+}
+
+pub struct ChannelsForFfmpegThread{
+    //pub download_info_tx: Sender<ffmpeg::DownloadInfo>
+}
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct FApp {
-    Title: String,
+    title: String,
+
+    ffmpeg_info: FfmpegInfo,
+
+    #[serde(skip)]
+    channels_for_gui: ChannelsForGuiThread,
 
     #[serde(skip)]
     value: f32,
@@ -18,14 +36,42 @@ pub struct FApp {
     input_path: PathBuf,
     output_path: PathBuf,
 
+    ffmpeg_is_ready: bool,
+
+    #[serde(skip)]
+    download_info: DownloadInfo,
+    #[serde(skip)]
+    download_info_rx: Option<Receiver<DownloadInfo>>,
+
     scalar: f32,
+    total: f32,
 }
 
 impl Default for FApp {
     fn default() -> Self {
+
+        let (download_info_tx, download_info_rx) = flume::bounded(1);
+
+        let channels_for_gui = ChannelsForGuiThread {
+            
+        };
+
+        let mut channels_for_ffmpeg = ChannelsForFfmpegThread {
+            
+        };
+
+        let mut ffmpeg_info = ffmpeg::FfmpegInfo::default();
+        ffmpeg_info.channels_for_ffmpeg = Some(channels_for_ffmpeg);
+        ffmpeg_info.download_info_tx = Some(download_info_tx);
+
         Self {
             // Example stuff:
-            Title: "Hello World!".to_owned(),
+            title: "Fuse".to_owned(),
+
+            ffmpeg_info,
+            channels_for_gui,
+
+
             value: 2.7,
 
             path_dialog: filedialog::ImNativeFileDialog::default(),
@@ -34,7 +80,12 @@ impl Default for FApp {
             input_path: PathBuf::default(),
             output_path: PathBuf::default(),
 
-            scalar: 42.0,
+            ffmpeg_is_ready: false,
+            download_info: DownloadInfo::default(),
+            download_info_rx: Some(download_info_rx),
+
+            scalar: 0.0,
+            total: 0.0,
         }
     }
 }
@@ -65,13 +116,19 @@ impl eframe::App for FApp {
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         let Self { 
-            Title, 
-            value ,
+            title: Title,
+            ffmpeg_info,
+            channels_for_gui: channels_for_ffmpeg,
+            value,
             path_dialog,
             path_dialog_out,
             input_path,
             output_path,
+            ffmpeg_is_ready,
+            download_info,
+            download_info_rx,
             scalar,
+            total,
         } = self;
 
         // Examples of how to create different panels and windows.
@@ -108,16 +165,19 @@ impl eframe::App for FApp {
         });
 
         egui::SidePanel::left("side_panel").show(ctx, |ui| {
-            ui.heading("Side Panel");
+            ui.heading("FFMPEG");
 
-            ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(Title);
-            });
+            if !self.ffmpeg_is_ready {
+                if ui.button("Download FFMPEG").clicked() {
+                    if !self.ffmpeg_is_ready {
+                        ffmpeg_info.download_ffmpeg();
+                        self.ffmpeg_is_ready = true;
+                    }
+                }
+            } else {
+                if ui.button("Download FFMPEG").clicked() {
 
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                *value += 1.0;
+                }
             }
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -182,7 +242,12 @@ impl eframe::App for FApp {
         });
 
         egui::TopBottomPanel::bottom("status_panel").show(ctx, |ui| {
-            let progress = *scalar / 360.0;
+            let download_info = self.download_info_rx.as_ref().unwrap().try_recv());
+            if  {
+                self.total = download_info.content_length as f32;
+                self.scalar = download_info.downloaded as f32;
+            }
+            let progress = self.scalar / self.total;
             let progress_bar = egui::ProgressBar::new(progress)
                 .show_percentage()
                 .animate(true);

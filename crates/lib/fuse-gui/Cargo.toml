@@ -9,8 +9,12 @@ path = "fuse-gui.rs"
 
 [dependencies]
 fuse-util = { path = "../fuse-util/" }
-egui = "0.19.0"
-eframe = { version = "0.19.0", features = ["persistence"] } 
+futures-util = "0.3.26"
+reqwest = { version = "0.11.14", features = ["stream"] }
+egui = "0.21.0"
+eframe = { version = "0.21.3", features = ["persistence"] } 
+flume = "0.10.14"
+futures = "0.3.26"
 serde = { verseion = "1", features = ["derive"] }
 crossbeam-channel = "0.5"
 native-dialog = "0.6"

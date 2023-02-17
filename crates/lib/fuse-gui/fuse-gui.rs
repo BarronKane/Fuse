@@ -1,6 +1,9 @@
+#![feature(async_closure)]
+
 mod app;
 pub use app::FApp;
 pub mod filedialog;
+pub mod ffmpeg;
 
 use fuse_util as util;
 
@@ -9,7 +12,7 @@ use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct FGui {
-    Title: String,
+    pub title: String,
 }
 
 impl eframe::App for FGui {
@@ -19,10 +22,10 @@ impl eframe::App for FGui {
 }
 
 impl FGui {
-    pub fn new(Title: String) -> Self {
+    pub fn new(title: String) -> Self {
         
         let mut fgui = FGui::default();
-        fgui.Title = Title;
+        fgui.title = title;
 
         fgui
     }
@@ -37,7 +40,8 @@ impl FGui {
             height: 32,
         });
         
-        eframe::run_native(&self.Title, 
+        eframe::run_native(
+            &self.title, 
             native_options, 
             Box::new(|cc| Box::new(FApp::new(cc))),
         );
