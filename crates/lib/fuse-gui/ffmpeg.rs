@@ -42,9 +42,8 @@ pub struct FfmpegInfo {
 
 impl Default for FfmpegInfo {
     fn default() -> Self {
-
-        let mut _download_location = fuse_util::get_cwd().unwrap();
-        _download_location.join("ffmpeg.zip");
+        let mut _download_location = fuse_util::get_cwd().unwrap().join("ffmpeg.zip");
+        print!("Download Location: {}", _download_location.clone().to_str().unwrap());
 
         let mut _unpack_location = fuse_util::get_cwd().unwrap();
         _unpack_location.join("ffmpeg");
@@ -74,15 +73,21 @@ impl Default for FfmpegInfo {
 impl FfmpegInfo {
     pub fn download_ffmpeg(&mut self) -> &Self {
         let _client = Client::new();
-        let _download_info_tx = self.download_info_tx.take().unwrap();
-        let _download_location = self.download_location.clone();
-        let _download_url = self.download_url.clone();
-        let handle = thread::spawn(async move || {
-            get_ffmpeg(_client, 
-                        _download_location, 
-                        _download_url, 
-                        _download_info_tx).await;
-        });
+        print!("Test File Location: {}", self.download_location.clone().to_str().unwrap());
+        if self.download_info_tx.is_some() {
+            let _download_info_tx = self.download_info_tx.take().unwrap();
+            let _download_location = self.download_location.clone();
+            let _download_url = self.download_url.clone();
+            let handle = thread::spawn(async move || {
+                get_ffmpeg(
+                    _client,
+                    _download_location,
+                    _download_url,
+                    _download_info_tx,
+                )
+                .await;
+            });
+        }
 
         return self;
     }

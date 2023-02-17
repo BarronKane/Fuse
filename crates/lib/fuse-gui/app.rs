@@ -1,17 +1,18 @@
+use crate::ffmpeg;
 use crate::ffmpeg::DownloadInfo;
 use crate::ffmpeg::FfmpegInfo;
 use crate::filedialog;
-use crate::ffmpeg;
 
+use crossbeam_channel::TryRecvError;
+use flume::{Receiver, Sender};
+use std::path::PathBuf;
 use std::thread;
-use std::{path::PathBuf};
-use flume::{Sender, Receiver};
 
 pub struct ChannelsForGuiThread {
     //download_info_rx: Receiver<ffmpeg::DownloadInfo>
 }
 
-pub struct ChannelsForFfmpegThread{
+pub struct ChannelsForFfmpegThread {
     //pub download_info_tx: Sender<ffmpeg::DownloadInfo>
 }
 
@@ -49,16 +50,11 @@ pub struct FApp {
 
 impl Default for FApp {
     fn default() -> Self {
-
         let (download_info_tx, download_info_rx) = flume::bounded(1);
 
-        let channels_for_gui = ChannelsForGuiThread {
-            
-        };
+        let channels_for_gui = ChannelsForGuiThread {};
 
-        let mut channels_for_ffmpeg = ChannelsForFfmpegThread {
-            
-        };
+        let mut channels_for_ffmpeg = ChannelsForFfmpegThread {};
 
         let mut ffmpeg_info = ffmpeg::FfmpegInfo::default();
         ffmpeg_info.channels_for_ffmpeg = Some(channels_for_ffmpeg);
@@ -70,7 +66,6 @@ impl Default for FApp {
 
             ffmpeg_info,
             channels_for_gui,
-
 
             value: 2.7,
 
@@ -115,7 +110,7 @@ impl eframe::App for FApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        let Self { 
+        let Self {
             title: Title,
             ffmpeg_info,
             channels_for_gui: channels_for_ffmpeg,
@@ -167,17 +162,9 @@ impl eframe::App for FApp {
         egui::SidePanel::left("side_panel").show(ctx, |ui| {
             ui.heading("FFMPEG");
 
-            if !self.ffmpeg_is_ready {
-                if ui.button("Download FFMPEG").clicked() {
-                    if !self.ffmpeg_is_ready {
-                        ffmpeg_info.download_ffmpeg();
-                        self.ffmpeg_is_ready = true;
-                    }
-                }
-            } else {
-                if ui.button("Download FFMPEG").clicked() {
-
-                }
+            if ui.button("Download FFMPEG").clicked() {
+                ffmpeg_info.download_ffmpeg();
+                self.ffmpeg_is_ready = true;
             }
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -210,8 +197,8 @@ impl eframe::App for FApp {
                 let location = self.input_path.clone();
                 //let repaint_signal = frame.;
                 self.path_dialog
-                   .open_single_dir(Some(location))
-                   .expect("Unable to open file_path_dialog");
+                    .open_single_dir(Some(location))
+                    .expect("Unable to open file_path_dialog");
             }
 
             ui.heading("OutputDirectory:");
@@ -226,10 +213,9 @@ impl eframe::App for FApp {
                 let location = self.output_path.clone();
                 //let repaint_signal = frame.;
                 self.path_dialog_out
-                   .open_single_dir(Some(location))
-                   .expect("Unable to open file_path_dialog");
+                    .open_single_dir(Some(location))
+                    .expect("Unable to open file_path_dialog");
             }
-            
         });
 
         egui::TopBottomPanel::bottom("footer_panel").show(ctx, |ui| {
@@ -242,17 +228,17 @@ impl eframe::App for FApp {
         });
 
         egui::TopBottomPanel::bottom("status_panel").show(ctx, |ui| {
-            let download_info = self.download_info_rx.as_ref().unwrap().try_recv());
-            if  {
-                self.total = download_info.content_length as f32;
-                self.scalar = download_info.downloaded as f32;
+            let mut download_info = self.download_info_rx.as_ref().unwrap();
+            if !download_info.is_empty() {
+                let _download_info = download_info.recv().unwrap();
+                self.total = _download_info.content_length as f32;
+                self.scalar = _download_info.downloaded as f32;
             }
             let progress = self.scalar / self.total;
             let progress_bar = egui::ProgressBar::new(progress)
                 .show_percentage()
                 .animate(true);
             ui.add(progress_bar);
-
         });
 
         if false {
