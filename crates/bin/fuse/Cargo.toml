@@ -12,14 +12,13 @@ path = "fuse.rs"
 fuse-util = { path = "../../lib/fuse-util" }
 fuse-gui = { path = "../../lib/fuse-gui" }
 
-self_update = { version = "0.32.0" }
-libloading = "0.7.2"
-notify = "4.0.17"
+self_update = { version = "0.37.0" }
+libloading = "0.8.0"
+notify = "6.0.1"
 
 [dependencies.windows]
-version = "0.29.0"
+version = "0.48.0"
 features = [
-    "alloc",
     "Win32_Foundation",
     "Win32_Security",
     "Win32_System_Threading"

@@ -78,6 +78,7 @@ impl FfmpegInfo {
             let _download_info_tx = self.download_info_tx.take().unwrap();
             let _download_location = self.download_location.clone();
             let _download_url = self.download_url.clone();
+            /*
             let handle = thread::spawn(async move || {
                 get_ffmpeg(
                     _client,
@@ -87,6 +88,7 @@ impl FfmpegInfo {
                 )
                 .await;
             });
+            */
         }
 
         return self;

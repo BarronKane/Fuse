@@ -13,7 +13,7 @@ fn main() {
     let _instances = instancing::InstanceMap::try_new("fuse");
         let _ = match _instances {
             Ok(_instances) => _instances,
-            Err(e) => panic!("Process already running: {}", e)
+            Err(e) => panic!("Process already running?: {}", e)
         };
     
     /*

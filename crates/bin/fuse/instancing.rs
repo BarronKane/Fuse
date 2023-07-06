@@ -20,6 +20,8 @@ mod instance {
     use super::InstanceError;
     use super::Result;
 
+    use windows::Win32::Foundation::BOOL;
+    use windows::Win32::Security::SECURITY_ATTRIBUTES;
     use windows::Win32::{
         Foundation,
         Foundation::HANDLE,
@@ -135,20 +137,32 @@ mod instance {
         }
 
         fn create_handle(&mut self, name: &str) -> Result<&Self> {
+            
+
             unsafe {
-                let handle = Threading::CreateMutexW(std::ptr::null_mut(), Foundation::BOOL(0), Foundation::PWSTR(name.encode_utf16().chain(Some(0)).collect::<Vec<_>>().as_mut_ptr()));
+                const sa: SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
+                {
+                    bInheritHandle: BOOL(0),
+                    lpSecurityDescriptor: std::ptr::null_mut(),
+                    nLength: std::mem::size_of::<SECURITY_ATTRIBUTES>() as u32
+                };
+                let test_name = name.clone();
+                let utf16name = name.encode_utf16().chain(Some(0)).collect::<Vec<_>>().as_mut_ptr();
+                let pcwstrname = windows::core::PCWSTR::from_raw(utf16name);
+
+                let handle = Threading::CreateMutexW(Some(&sa), Foundation::BOOL(0), pcwstrname);
                 let lerr = Foundation::GetLastError();
 
-                if handle.is_invalid() || handle.0 as u32 == Foundation::ERROR_INVALID_HANDLE {
+                if handle.is_err() {
                     Err(InstanceError("Windows handle invalid!".to_string()))
-                } else if lerr == Foundation::ERROR_ALREADY_EXISTS {
+                } else if lerr.0 != 0 {
                     /*
                     Foundation::CloseHandle(handle);
                     Ok(Instance{ handle: None })
                     */
                     Err(InstanceError("Handle exists! Is process already running?".to_string()))
                 } else {
-                    self.handle = Some(handle);
+                    self.handle = Some(handle.unwrap());
                     Ok(self)
                 }
             }
@@ -159,7 +173,7 @@ mod instance {
         fn drop(&mut self) {
             if let Some(handle) = self.handle.take() {
                 unsafe {
-                    Foundation::CloseHandle(handle);
+                    //Foundation::CloseHandle(handle);
                 }
             }
         }

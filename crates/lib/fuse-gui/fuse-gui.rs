@@ -1,5 +1,3 @@
-#![feature(async_closure)]
-
 mod app;
 pub use app::FApp;
 pub mod filedialog;
