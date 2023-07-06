@@ -182,10 +182,29 @@ mod instance {
 
 #[cfg(target_os = "linux")]
 mod instance {
+    use super::InstanceError;
+    use super::Result;
 
+    use nix::sys::socket::{self, UnixAddr};
+    use nix::unistd;
+    use std::os::unix::prelude::RawFd;
+
+    use std::collections::HashMap;
+
+    
 }
 
 #[cfg(target_os = "macos")]
 mod instance {
+    use super::InstanceError;
+    use super::Result;
+
+    use libc::{__error, flock, EWOULDBLOCK, LOCK_EX, LOCK_NB};
+    use std::fs::File;
+    use std::os::unix::io::AsRawFd;
+    use std::path::Path;
+
+    use std::collections::HashMap;
+
 
 }
