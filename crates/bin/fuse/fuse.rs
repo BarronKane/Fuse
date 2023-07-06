@@ -11,10 +11,10 @@ use fuse_gui as fgui;
 
 fn main() {
     let _instances = instancing::InstanceMap::try_new("fuse");
-        let _ = match _instances {
-            Ok(_instances) => _instances,
-            Err(e) => panic!("Process already running?: {}", e)
-        };
+    let instances = match _instances {
+        Ok(_instances) => _instances,
+        Err(e) => panic!("Process already running?: {}", e)
+    };
     
     /*
     if let Err(e) = check_update() {
@@ -23,7 +23,7 @@ fn main() {
     }
     */
 
-    scoped_main();        
+    scoped_main(); 
 }
 
 fn scoped_main() {

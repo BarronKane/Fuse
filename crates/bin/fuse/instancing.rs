@@ -173,7 +173,7 @@ mod instance {
         fn drop(&mut self) {
             if let Some(handle) = self.handle.take() {
                 unsafe {
-                    //Foundation::CloseHandle(handle);
+                    Foundation::CloseHandle(handle);
                 }
             }
         }
