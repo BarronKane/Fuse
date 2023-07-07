@@ -11,7 +11,7 @@ use fuse_gui as fgui;
 
 fn main() {
     let _instances = instancing::InstanceMap::try_new("fuse");
-    let instances = match _instances {
+    let _instances = match _instances {
         Ok(_instances) => _instances,
         Err(e) => panic!("Process already running?: {}", e)
     };
