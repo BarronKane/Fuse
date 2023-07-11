@@ -11,14 +11,16 @@ path = "fuse-gui.rs"
 fuse-util = { path = "../fuse-util/" }
 futures-util = "0.3.26"
 reqwest = { version = "0.11.14", features = ["stream"] }
-egui = "0.21.0"
-eframe = { version = "0.21.3", features = ["persistence"] } 
+egui = "0.22.0"
+eframe = { version = "0.22.0", features = ["persistence"] } 
 flume = "0.10.14"
 futures = "0.3.26"
 serde = { verseion = "1", features = ["derive"] }
 crossbeam-channel = "0.5"
 native-dialog = "0.6"
 thiserror = "1"
+serde_derive = "1.0.167"
+tokio = { version = "1.29", features = ["net", "rt-multi-thread"]}
 
 
 # native:

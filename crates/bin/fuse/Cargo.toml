@@ -11,10 +11,12 @@ path = "fuse.rs"
 [dependencies]
 fuse-util = { path = "../../lib/fuse-util" }
 fuse-gui = { path = "../../lib/fuse-gui" }
+lazy_static = "1.4.0"
 
 self_update = { version = "0.37.0" }
 libloading = "0.8.0"
 notify = "6.0.1"
+tokio = { version = "1.29", features = ["net", "rt-multi-thread"]}
 
 [dependencies.windows]
 version = "0.48.0"
