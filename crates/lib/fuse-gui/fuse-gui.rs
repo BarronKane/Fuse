@@ -31,12 +31,12 @@ impl FGui {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn run(&mut self) -> &Self {
         let mut native_options = eframe::NativeOptions::default();
-        let icon = util::file_to_bytes(util::get_cwd().unwrap().join("Assets").join("icon-1024.png"));
-        native_options.icon_data = Some(eframe::IconData {
-            rgba: icon.to_vec(),
-            width: 32,
-            height: 32,
-        });
+        //let icon = util::file_to_bytes(util::get_cwd().unwrap().join("Assets").join("icon-1024.png"));
+        //native_options.icon_data = Some(eframe::IconData {
+        //    rgba: icon.to_vec(),
+        //    width: 32,
+        //    height: 32,
+        //});
         
         eframe::run_native(
             &self.title, 
