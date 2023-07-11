@@ -11,6 +11,7 @@ path = "fuse.rs"
 [dependencies]
 fuse-util = { path = "../../lib/fuse-util" }
 fuse-gui = { path = "../../lib/fuse-gui" }
+lazy_static = "1.4.0"
 
 self_update = { version = "0.37.0" }
 libloading = "0.8.0"

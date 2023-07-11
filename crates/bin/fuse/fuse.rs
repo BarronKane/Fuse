@@ -10,9 +10,9 @@ use fuse_util as util;
 use fuse_gui as fgui;
 
 fn main() {
-    let _instances = instancing::InstanceMap::try_new("fuse");
-    let _instances = match _instances {
-        Ok(_instances) => _instances,
+    let _result = instancing::new_instance("Fuse");
+    let _result = match _result {
+        Ok(_result) => _result,
         Err(e) => panic!("Process already running?: {}", e)
     };
     
