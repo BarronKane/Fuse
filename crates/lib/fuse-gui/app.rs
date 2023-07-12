@@ -3,10 +3,8 @@ use crate::ffmpeg::DownloadInfo;
 use crate::ffmpeg::FfmpegInfo;
 use crate::filedialog;
 
-use crossbeam_channel::TryRecvError;
-use flume::{Receiver, Sender};
+use flume::Receiver;
 use std::path::PathBuf;
-use std::thread;
 
 pub struct ChannelsForGuiThread {
     //download_info_rx: Receiver<ffmpeg::DownloadInfo>
@@ -54,7 +52,7 @@ impl Default for FApp {
 
         let channels_for_gui = ChannelsForGuiThread {};
 
-        let mut channels_for_ffmpeg = ChannelsForFfmpegThread {};
+        let channels_for_ffmpeg = ChannelsForFfmpegThread {};
 
         let mut ffmpeg_info = ffmpeg::FfmpegInfo::default();
         ffmpeg_info.channels_for_ffmpeg = Some(channels_for_ffmpeg);
@@ -109,9 +107,10 @@ impl eframe::App for FApp {
 
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
+    #[allow(unused_variables)]
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         let Self {
-            title: Title,
+            title,
             ffmpeg_info,
             channels_for_gui: channels_for_ffmpeg,
             value,
@@ -228,7 +227,7 @@ impl eframe::App for FApp {
         });
 
         egui::TopBottomPanel::bottom("status_panel").show(ctx, |ui| {
-            let mut download_info = self.download_info_rx.as_ref().unwrap();
+            let download_info = self.download_info_rx.as_ref().unwrap();
             if !download_info.is_empty() {
                 let _download_info = download_info.recv().unwrap();
                 self.total = _download_info.content_length as f32;

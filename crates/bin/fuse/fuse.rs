@@ -2,11 +2,7 @@ pub mod instancing;
 
 use self_update as su;
 use su::cargo_crate_version;
-use libloading as ll;
-use notify;
-use std::{path::{Path, PathBuf}, time};
 
-use fuse_util as util;
 use fuse_gui as fgui;
 
 fn main() {
@@ -33,6 +29,7 @@ fn scoped_main() {
     //}
 }
 
+#[allow(dead_code)]
 fn check_update() -> Result<(), Box<dyn ::std::error::Error>> {
     let releases = self_update::backends::github::ReleaseList::configure()
         .repo_owner("BarronKane")

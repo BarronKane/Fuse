@@ -5,7 +5,7 @@ authors = [ "Lance Wallis <bleudeveloper@gmail.com>"]
 edition = "2021"
 
 [[bin]]
-name = "Fuse"
+name = "fuse"
 path = "fuse.rs"
 
 [dependencies]

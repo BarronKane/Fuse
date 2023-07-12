@@ -134,17 +134,16 @@ mod instance_temp {
             
 
             unsafe {
-                const sa: SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
+                const SA: SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
                 {
                     bInheritHandle: BOOL(0),
                     lpSecurityDescriptor: std::ptr::null_mut(),
                     nLength: std::mem::size_of::<SECURITY_ATTRIBUTES>() as u32
                 };
-                let test_name = name.clone();
                 let utf16name = name.encode_utf16().chain(Some(0)).collect::<Vec<_>>().as_mut_ptr();
                 let pcwstrname = windows::core::PCWSTR::from_raw(utf16name);
 
-                let handle = Threading::CreateMutexW(Some(&sa), Foundation::BOOL(0), pcwstrname);
+                let handle = Threading::CreateMutexW(Some(&SA), Foundation::BOOL(0), pcwstrname);
                 let lerr = Foundation::GetLastError();
 
                 if handle.is_err() {

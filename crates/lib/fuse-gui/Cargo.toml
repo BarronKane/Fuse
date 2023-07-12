@@ -15,7 +15,7 @@ egui = "0.22.0"
 eframe = { version = "0.22.0", features = ["persistence"] } 
 flume = "0.10.14"
 futures = "0.3.26"
-serde = { verseion = "1", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
 crossbeam-channel = "0.5"
 native-dialog = "0.6"
 thiserror = "1"

@@ -1,3 +1,6 @@
+// TODO: This will be it's own module.
+#![allow(unused_imports)]
+
 use futures_util::stream::StreamExt;
 use reqwest::Client;
 use std::io::Write;
