@@ -1,8 +1,10 @@
 [workspace]
 members = [
+    "crates/lib/fuse-ffmpeg",
     "crates/lib/fuse-gui",
     "crates/lib/fuse-logger",
     "crates/lib/fuse-util",
+    "crates/lib/sysmut",
 
     "crates/bin/fuse"
 ]

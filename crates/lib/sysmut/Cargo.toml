@@ -1,0 +1,9 @@
+[package]
+name = "sysmut"
+description = "sysmut is a working title for System Mutex."
+version = "0.1.0"
+authors = ["Lance Wallis <bleudeveloper@gmail.com>"]
+edition = "2021"
+
+[lib]
+path = "sysmut.rs"
