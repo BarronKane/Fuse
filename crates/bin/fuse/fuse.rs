@@ -13,7 +13,7 @@ fn main() {
     let _result = instancing::new_instance("Fuse");
     let _result = match _result {
         Ok(_result) => _result,
-        Err(e) => panic!("Process already running?: {}", e)
+        Err(e) => panic!("STARTUP {}", e)
     };
     
     /*
